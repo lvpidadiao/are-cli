@@ -8,3 +8,5 @@ edition = "2018"
 
 [dependencies]
 rustyline = "4.1.0"
+redis = "0.10.0"
+clap = "~2.33"
