@@ -1,5 +1,5 @@
 
-use redis::{Cmd, Connection,ErrorKind};
+use redis::{Connection, ErrorKind};
 
 pub struct RESPLikeCmd<'a>{
     pub cmd: String,

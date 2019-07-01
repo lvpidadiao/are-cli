@@ -18,11 +18,11 @@ fn main() {
         .arg(Arg::with_name("hostname")
             .short("h")
             .help("host name to connect")
-            .default_value("192.168.209.57"))
+            .default_value("127.0.0.1"))
         .arg(Arg::with_name("port")
             .short("p")
             .help("redis connect port")
-            .default_value("6379"))
+            .default_value("6700"))
         .get_matches();
 
 
@@ -35,7 +35,6 @@ fn main() {
     redis_addr.push_str(port);
 
     let cli = Client::open(redis_addr.as_str()).unwrap();
-    let con = cli.get_connection().unwrap();
 
 
     let mut rl = Editor::<()>::new();
@@ -51,8 +50,15 @@ fn main() {
                     break;
                 }
                 rl.add_history_entry(line.as_str());
-                let rlike = process::RESPLikeCmd::new(&line, &con);
-                rlike.do_redis()
+                let con = cli.get_connection();
+                if con.is_ok() {
+                    let conn = con.unwrap();
+                    let rlike = process::RESPLikeCmd::new(&line, &conn);
+                    rlike.do_redis();
+                }else {
+                    println!("conn err {}", con.err().unwrap())
+                }
+
             },
             Err(ReadlineError::Interrupted) => {
                 println!("CTRL-C");
