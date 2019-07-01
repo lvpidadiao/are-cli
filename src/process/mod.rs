@@ -1,5 +1,6 @@
 
 use redis::{Connection, ErrorKind};
+pub mod line_edit;
 
 pub struct RESPLikeCmd<'a>{
     pub cmd: String,

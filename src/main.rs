@@ -38,7 +38,7 @@ fn main() {
 
 
     let mut rl = Editor::<()>::new();
-    if rl.load_history("history.txt").is_err() {
+    if rl.load_history("./history.txt").is_err() {
         println!("No previous history.");
     }
 
