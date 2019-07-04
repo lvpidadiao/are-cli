@@ -1,5 +1,7 @@
-
+use rustyline;
+use rustyline::error::ReadlineError;
 use rustyline::Editor;
+use crate::pool;
 
 const K:&str = "hello";
 
@@ -8,7 +10,6 @@ pub struct EditLine {
     rl: Editor<()>,
     prompt: String,
 }
-
 
 impl EditLine {
     pub fn new(promp: &str) -> Self {
@@ -22,6 +23,22 @@ impl EditLine {
         loop {
             let readline = self.rl.readline(&self.prompt);
 
+            match readline {
+                Ok(line) => {
+                    if line.eq("exit") || line.eq("quit") {
+                        break;
+                    }
+                    self.rl.add_history_entry(line.as_str());
+                }
+                Err(ReadlineError::Interrupted) => {
+                    println!("CTRL-C, quit.");
+                    break
+                },
+                Err(err) => {
+                    println!("Error: {}", err.to_string());
+                    continue
+                }
+            }
         }
     }
 }

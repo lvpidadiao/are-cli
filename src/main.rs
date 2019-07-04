@@ -7,6 +7,7 @@ use clap::{Arg, App};
 use redis::Client;
 
 pub mod process;
+pub mod pool;
 
 
 fn main() {
