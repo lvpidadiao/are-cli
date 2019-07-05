@@ -1,5 +1,5 @@
 
-use redis::{Connection, ErrorKind};
+use redis::{Connection, ErrorKind, RedisResult};
 pub mod line_edit;
 
 pub struct RESPLikeCmd<'a>{
@@ -44,7 +44,7 @@ impl<'a>  RESPLikeCmd<'a> {
         }
     }
 
-    pub fn do_redis(self) {
+    pub fn do_redis(self) -> RedisResult<String> {
         let mut rcmd = redis::cmd(&self.cmd);
         if let Some(k) = self.key {
             rcmd.arg(&k);
@@ -54,25 +54,26 @@ impl<'a>  RESPLikeCmd<'a> {
                 rcmd.arg(vv);
             }
         }
-        let result = rcmd.query::<String>(self.conn);
-        match result {
-            Ok(o) => {
-            println!("{}", o)
-            },
-            Err(e) => {
-                match e.kind() {
-                    ErrorKind::IoError => {
-                        if !self.conn.is_open() {
-
-                        }
-                    }
-                    _ => {
-                        println!("{}", e.to_string())
-                    }
-                }
-
-            }
-        }
+        rcmd.query::<String>(self.conn)
+//        let result = rcmd.query::<String>(self.conn);
+//        match result {
+//            Ok(o) => {
+//            println!("{}", o)
+//            },
+//            Err(e) => {
+//                match e.kind() {
+//                    ErrorKind::IoError => {
+//                        if !self.conn.is_open() {
+//
+//                        }
+//                    }
+//                    _ => {
+//                        println!("{}", e.to_string())
+//                    }
+//                }
+//
+//            }
+//        }
     }
 
     pub fn assemble(self) {

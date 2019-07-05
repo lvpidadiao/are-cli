@@ -5,6 +5,8 @@ use rustyline::Editor;
 use clap::{Arg, App};
 
 use redis::Client;
+use crate::pool::RedisPool;
+use crate::process::line_edit::EditLine;
 
 pub mod process;
 pub mod pool;
@@ -23,7 +25,7 @@ fn main() {
         .arg(Arg::with_name("port")
             .short("p")
             .help("redis connect port")
-            .default_value("6700"))
+            .default_value("6379"))
         .get_matches();
 
 
@@ -31,45 +33,16 @@ fn main() {
     let port = matches.value_of("port").unwrap();
 
     let mut redis_addr = String::from("redis://");
+    let prompt = format!("{}:{}", hostname, port);
     redis_addr.push_str(hostname);
     redis_addr.push_str(":");
     redis_addr.push_str(port);
 
     let cli = Client::open(redis_addr.as_str()).unwrap();
 
+    let rpool = RedisPool::new(&redis_addr).expect("can't init redis pool");
 
-    let mut rl = Editor::<()>::new();
-    if rl.load_history("./history.txt").is_err() {
-        println!("No previous history.");
-    }
+    let el = EditLine::new(rpool, &format!("{}>> ", prompt)[0..]);
 
-    loop {
-        let readline = rl.readline("are_cli>> ");
-        match readline {
-            Ok(line) => {
-                if line.eq("exit") || line.eq("quit") {
-                    break;
-                }
-                rl.add_history_entry(line.as_str());
-                let con = cli.get_connection();
-                if con.is_ok() {
-                    let conn = con.unwrap();
-                    let rlike = process::RESPLikeCmd::new(&line, &conn);
-                    rlike.do_redis();
-                }else {
-                    println!("conn err {}", con.err().unwrap())
-                }
-
-            },
-            Err(ReadlineError::Interrupted) => {
-                println!("CTRL-C");
-                break
-            },
-            Err(err) => {
-                println!("Error: {:?}", err);
-                break
-            }
-        }
-    }
-    rl.save_history("hello.txt").unwrap();
+    el.run();
 }

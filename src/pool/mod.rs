@@ -12,15 +12,13 @@ pub struct RedisPool {
 impl RedisPool {
     pub fn new(url: &str) -> RedisResult<Self> {
         let cli = Client::open(url)?;
-        Ok(
-            RedisPool {
-                cli: cli,
+        Ok(RedisPool {
+                cli,
                 connvec: RefCell::new(Vec::new()),
-            }
-        )
+            })
     }
 
-    fn get_conn(&self) -> Connection {
+    pub fn get_conn(&self) -> Connection {
         let mut mconn = self.connvec.borrow_mut();
 
         if mconn.len() == 0 {
@@ -35,7 +33,7 @@ impl RedisPool {
         }
     }
 
-    fn ret_conn(&self, conn: Connection) {
+    pub fn give_back(&self, conn: Connection) {
         self.connvec.borrow_mut().push(conn);
     }
 }
