@@ -29,7 +29,6 @@ impl EditLine {
         self.rl.load_history(HISTORY);
         loop {
             let readline = self.rl.readline(&self.prompt);
-
             match readline {
                 Ok(line) => {
                     if line.eq("exit") || line.eq("quit") {
@@ -60,5 +59,32 @@ impl EditLine {
             }
         }
         self.rl.save_history(HISTORY);
+    }
+}
+
+
+#[cfg(test)]
+mod test {
+    struct A {
+        pub a: i32,
+    }
+
+    impl A {
+        pub fn new() -> Self{
+            eprintln!("a new A init.");
+            A {
+                a: 1,
+            }
+        }
+    }
+
+    fn pass(a: A) {
+        eprintln!("i got it {}", a.a);
+    }
+
+    #[test]
+    fn test_A() {
+        let a = A::new();
+        pass(a);
     }
 }
